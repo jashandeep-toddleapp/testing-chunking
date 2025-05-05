@@ -82,6 +82,16 @@ module.exports = {
     // Add other plugins like DefinePlugin if needed for environment variables
   ].filter(Boolean),
   optimization: {
+    runtimeChunk: {
+      name: (entrypoint) => `runtime-${entrypoint.name}`,
+    },
+    removeAvailableModules: false,
+    removeEmptyChunks: false,
+    usedExports: true,
+    sideEffects: true,
+    // concatenateModules: true,
+    // occurrenceOrder: true,
+    flagIncludedChunks: true,
     minimize: isProduction,
     minimizer: [
       new TerserPlugin({
@@ -109,14 +119,19 @@ module.exports = {
     ],
     splitChunks: {
       chunks: "all",
-      name: false, // Let webpack determine chunk names
+      minSize: 500000,
+      maxAsyncRequests: 12,
+      maxInitialRequests: 12,
       cacheGroups: {
+        default: false,
         // Example: Splitting vendor code
         vendor: {
           test: /[\\/]node_modules[\\/]/,
           name: "vendors",
           chunks: "all",
           reuseExistingChunk: true,
+          enforce: true,
+          priority: 20,
         },
         Components: {
           // Correctly target the src/Components directory
